@@ -3,6 +3,7 @@
 import logging
 from pathlib import Path
 
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST
 from homeassistant.core import HomeAssistant
@@ -19,11 +20,9 @@ CARD_URL = f"/{DOMAIN}/{CARD_JS}"
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Register the Lovelace card as a static resource."""
-    hass.http.register_static_path(
-        CARD_URL,
-        str(Path(__file__).parent / CARD_JS),
-        cache_headers=False,
-    )
+    await hass.http.async_register_static_paths([
+        StaticPathConfig(CARD_URL, str(Path(__file__).parent / CARD_JS), False),
+    ])
 
     # Auto-register the card as a Lovelace resource
     await _register_card_resource(hass)
