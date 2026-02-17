@@ -1,6 +1,6 @@
 # OREI HDMI Matrix Integration for Home Assistant
 
-A custom [Home Assistant](https://www.home-assistant.io/) integration for the **OREI UHD44-EXB400R-K** 4x4 HDMI/HDBaseT matrix switcher.
+A custom [Home Assistant](https://www.home-assistant.io/) integration for the **OREI UHD44-EXB400R-K HDBaseT 4x4 HDMI Extender Matrix**.
 
 This integration is not intended to replace the matrix's built-in web management interface. Rather, it brings the main control and automation capabilities of the matrix into Home Assistant — letting you route inputs to outputs, monitor signal status, and build automations around your AV setup.
 
@@ -15,7 +15,7 @@ This integration is not intended to replace the matrix's built-in web management
 
 ## Supported Hardware
 
-- **OREI UHD44-EXB400R-K** (4x4 HDMI 2.0/HDBaseT matrix switcher)
+- **OREI UHD44-EXB400R-K** HDBaseT 4x4 HDMI Extender Matrix
 - Other OREI matrix models using the same HTTP/JSON API at `/cgi-bin/instr` may also work
 
 ## Installation
@@ -35,12 +35,7 @@ This integration is not intended to replace the matrix's built-in web management
 
 ### Lovelace Card
 
-The custom card is not installed automatically. After installing the integration:
-
-1. Copy `www/orei-matrix-card.js` to your Home Assistant `config/www/` directory
-2. In Home Assistant, go to **Settings > Dashboards > Resources**
-3. Add `/local/orei-matrix-card.js` as a **JavaScript Module**
-4. Add the card to your dashboard using the card picker or YAML:
+The custom card is bundled with the integration. It is served and registered as a Lovelace resource automatically — no manual steps needed. Just add it to your dashboard:
 
 ```yaml
 type: custom:orei-matrix-card

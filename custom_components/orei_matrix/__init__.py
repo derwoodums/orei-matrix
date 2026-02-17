@@ -1,6 +1,7 @@
 """OREI HDMI Matrix integration for Home Assistant."""
 
 import logging
+from pathlib import Path
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST
@@ -11,6 +12,41 @@ from .const import DOMAIN, PLATFORMS
 from .coordinator import OreiMatrixCoordinator
 
 _LOGGER = logging.getLogger(__name__)
+
+CARD_JS = "orei-matrix-card.js"
+CARD_URL = f"/{DOMAIN}/{CARD_JS}"
+
+
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Register the Lovelace card as a static resource."""
+    hass.http.register_static_path(
+        CARD_URL,
+        str(Path(__file__).parent / CARD_JS),
+        cache_headers=False,
+    )
+
+    # Auto-register the card as a Lovelace resource
+    await _register_card_resource(hass)
+    return True
+
+
+async def _register_card_resource(hass: HomeAssistant) -> None:
+    """Add the card JS to Lovelace resources if not already present."""
+    lovelace = hass.data.get("lovelace")
+    if lovelace is None:
+        return
+
+    resources = lovelace.get("resources")
+    if resources is None:
+        return
+
+    # Check if already registered
+    for item in resources.async_items():
+        if CARD_URL in item.get("url", ""):
+            return
+
+    await resources.async_create_item({"res_type": "module", "url": CARD_URL})
+    _LOGGER.info("Registered Lovelace resource: %s", CARD_URL)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
