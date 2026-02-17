@@ -20,12 +20,18 @@ CARD_URL = f"/{DOMAIN}/{CARD_JS}"
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Register the Lovelace card as a static resource."""
-    await hass.http.async_register_static_paths([
-        StaticPathConfig(CARD_URL, str(Path(__file__).parent / CARD_JS), False),
-    ])
+    try:
+        await hass.http.async_register_static_paths([
+            StaticPathConfig(CARD_URL, str(Path(__file__).parent / CARD_JS), False),
+        ])
+    except Exception:
+        _LOGGER.warning("Could not register static path for Lovelace card")
 
-    # Auto-register the card as a Lovelace resource
-    await _register_card_resource(hass)
+    try:
+        await _register_card_resource(hass)
+    except Exception:
+        _LOGGER.warning("Could not auto-register Lovelace card resource")
+
     return True
 
 
@@ -35,11 +41,12 @@ async def _register_card_resource(hass: HomeAssistant) -> None:
     if lovelace is None:
         return
 
-    resources = lovelace.get("resources")
+    resources = getattr(lovelace, "resources", None)
+    if resources is None and isinstance(lovelace, dict):
+        resources = lovelace.get("resources")
     if resources is None:
         return
 
-    # Check if already registered
     for item in resources.async_items():
         if CARD_URL in item.get("url", ""):
             return
