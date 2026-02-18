@@ -3,6 +3,7 @@
 import logging
 from pathlib import Path
 
+from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST
@@ -19,7 +20,7 @@ CARD_URL = f"/{DOMAIN}/{CARD_JS}"
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    """Register the Lovelace card as a static resource."""
+    """Register the Lovelace card as a frontend resource."""
     try:
         await hass.http.async_register_static_paths([
             StaticPathConfig(CARD_URL, str(Path(__file__).parent / CARD_JS), False),
@@ -27,32 +28,9 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     except Exception:
         _LOGGER.warning("Could not register static path for Lovelace card")
 
-    try:
-        await _register_card_resource(hass)
-    except Exception:
-        _LOGGER.warning("Could not auto-register Lovelace card resource")
+    add_extra_js_url(hass, CARD_URL)
 
     return True
-
-
-async def _register_card_resource(hass: HomeAssistant) -> None:
-    """Add the card JS to Lovelace resources if not already present."""
-    lovelace = hass.data.get("lovelace")
-    if lovelace is None:
-        return
-
-    resources = getattr(lovelace, "resources", None)
-    if resources is None and isinstance(lovelace, dict):
-        resources = lovelace.get("resources")
-    if resources is None:
-        return
-
-    for item in resources.async_items():
-        if CARD_URL in item.get("url", ""):
-            return
-
-    await resources.async_create_item({"res_type": "module", "url": CARD_URL})
-    _LOGGER.info("Registered Lovelace resource: %s", CARD_URL)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
