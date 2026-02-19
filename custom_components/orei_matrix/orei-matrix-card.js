@@ -4,7 +4,7 @@
  * Two views: Matrix Grid and List. Power toggle and preset buttons at top.
  */
 
-const CARD_VERSION = "1.2.0";
+const CARD_VERSION = "1.2.1";
 
 class OreiMatrixCard extends HTMLElement {
   constructor() {

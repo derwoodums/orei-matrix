@@ -1,5 +1,6 @@
 """OREI HDMI Matrix integration for Home Assistant."""
 
+import json
 import logging
 from pathlib import Path
 
@@ -28,7 +29,10 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     except Exception:
         _LOGGER.warning("Could not register static path for Lovelace card")
 
-    add_extra_js_url(hass, CARD_URL)
+    # Use manifest version as cache buster so PWAs and browsers pick up new versions
+    manifest = json.loads((Path(__file__).parent / "manifest.json").read_text())
+    version = manifest.get("version", "0")
+    add_extra_js_url(hass, f"{CARD_URL}?v={version}")
 
     return True
 
